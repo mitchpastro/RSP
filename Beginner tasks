@@ -1,0 +1,273 @@
+// This program shows a Binary tree
+// A binary tree consists of a graph with nodes
+// Each node has a data value and points to two outher nodes eg...
+// 
+//           1
+//      /        \
+//     2          3
+//    /  \       /  \
+//   4    5     6     7
+//  / \  / \   / \   / \
+//  8 9 10 11 12 13 14 15
+//           /  /        \
+//          2            17
+//                         \
+//                          111
+//                          /
+//                         23
+
+#include <iostream>
+
+// Node class contains data and pointer to left and right
+class node{
+    public:
+        int data;
+        class node *left;
+        class node *right;
+        
+        // Initilazation of node with value
+        node(int val) {
+            data = val;
+            left = NULL;
+            right = NULL;
+        }
+         // Initilazation of node without value
+        node() {
+            data = 0;
+            left = NULL;
+            right = NULL;
+        }
+        
+        ~node() {
+             
+        }
+        
+        // Functions to access equivalent in private
+        void insert_public(int data, node *temp);
+        node *search_public(int data, node *temp);
+        void destroy_public(node *temp);
+        
+    private:
+        // Accessed through equivalent public function
+        void insert(int data, node *temp);
+        node *search(int data, node *temp);
+        void destroy(node *temp);
+};
+
+
+// Used to destroy all noded decendent from *temp. Use on root to destroy entire tree
+    //Bug:
+    //    When destroying a node and then printing, the decendents of the destroyed node 
+    //    dont show but the but the node itself remains as a 0.
+void node::destroy(node *temp) {
+    if(temp != NULL) {
+        destroy(temp->left);
+        destroy(temp->right);
+        temp->data = NULL;
+        temp->left = NULL;
+        temp->right = NULL;
+    }
+}
+
+// Used to keep destroy private
+void node::destroy_public(node *temp) {
+    destroy(temp);
+}
+
+// Used to find a empty node and add value d starting from temp.
+// The method used is to simply go left if d < data and to go
+// right if d >= data, not paticualy nuance but it works
+void node::insert(int d, node *temp) {
+    
+    // Left
+    if(d<temp->data) {
+        if(temp->left != NULL) {
+            insert(d, temp->left);
+        }
+        else {
+            temp->left = new node;
+            temp->left->data=d;
+            temp->left->left=NULL;
+            temp->left->right=NULL;
+        }
+    }
+    
+    // Right
+    else if(d >= temp->data) {
+        if(temp->right != NULL) {
+            insert(d, temp->right);
+        }
+        else {
+            temp->right = new node;
+            temp->right->data=d;
+            temp->right->left=NULL;
+            temp->right->right=NULL;
+        }
+    }
+}
+
+// Used to keep insert private
+void node::insert_public(int d, node *temp) {
+    insert(d,temp);
+}
+
+// Searches value d in given node and all nodes below it. Returns
+// pointer to that node. Use on root to search the whole tree
+node *node::search(int d, node *temp) {
+    if(temp != NULL) {
+        if(d == temp->data) {
+            return temp;
+        }
+        if(d<temp->data) {
+            return search(d, temp->left);
+        }
+        else return search(d, temp->right);
+    }
+    else return NULL;
+}
+
+// Used to keep search private
+node *node::search_public(int d, node *temp) {
+    return search(d,temp);
+}
+
+// Prints entire tree in order of top, left, right  
+//     1
+//   /   \      -> 1,2,3
+//  2     3
+void printTLROrder(node *temp) {
+    if(temp != NULL) {
+        std::cout<<" "<<temp->data;
+        printTLROrder(temp->left);
+        printTLROrder(temp->right);
+    }
+}
+
+// Prints entire tree in order of left, top, right  
+//     1
+//   /   \      -> 2,1,3
+//  2     3
+void printLTROrder(node *temp) {
+    if(temp != NULL) {
+        printLTROrder(temp->left);
+        std::cout<<" "<<temp->data;
+        printLTROrder(temp->right);
+    }
+}
+
+// Prints entire tree in order of left, right, top  
+//     1
+//   /   \      -> 2,3,1
+//  2     3
+void printLRTOrder(node *temp) {
+    if(temp != NULL) {
+        printLRTOrder(temp->left);
+        printLRTOrder(temp->right);
+        std::cout<<" "<<temp->data;
+    }
+}
+
+
+int main() {
+    
+    // Create nodes 1-15 and demonstrating TLR, LTR and LRT
+    class node *root = new node(1);
+    //     1
+    //   /   \
+    // NULL NULL
+    
+    root->left = new node(2);
+    root->right = new node(3);
+    //         1
+    //     /       \
+    //    2         3
+    //  /   \     /   \
+    //NULL NULL NULL NULL
+    
+    root->left->left = new node(4);
+    root->left->right = new node(5);
+    root->right->left = new node(6);
+    root->right->right = new node(7);
+    //            1
+    //        /       \
+    //       2         3
+    //     /   \     /   \
+    //    4     5   6     7
+    
+    root->left->left->left = new node(8);
+    root->left->left->right = new node(9);
+    root->left->right->left = new node(10);
+    root->left->right->right = new node(11);
+    root->right->left->left = new node(12);
+    root->right->left->right = new node(13);
+    root->right->right->left = new node(14);
+    root->right->right->right = new node(15);
+    //           1
+    //      /        \
+    //     2          3
+    //    /  \       /  \
+    //   4    5     6     7
+    //  / \  / \   / \   / \
+    //  8 9 10 11 12 13 14 15
+
+
+    std::cout<<std::endl;
+    std::cout<<"TLR order for nodes 1-15"<<std::endl;
+    printTLROrder(root);
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    
+    std::cout<<"LTR order for nodes 1-15"<<std::endl;
+    printLTROrder(root);
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+        
+    std::cout<<"LRT order for nodes 1-15"<<std::endl;
+    printLRTOrder(root);
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+
+
+    // Demonstrating instert function
+
+    root->insert_public(17, root);
+    root->insert_public(111, root);
+    root->insert_public(23, root);
+    root->insert_public(2, root);
+    root->insert_public(73, root->left->right->left);
+    //           1
+    //      /        \
+    //     2          3
+    //    /  \       /  \
+    //   4    5     6     7
+    //  / \  / \   / \   / \
+    //  8 9 10 11 12 13 14 15
+    //     /     /           \
+    //    73    2            17
+    //                         \
+    //                          111
+    //                          /
+    //                         23
+    
+    std::cout<<std::endl;
+    std::cout<<"TLR order for nodes 1-15 with inserted 17,111,23,2 and 73"<<std::endl;
+    printTLROrder(root);
+    std::cout<<std::endl;
+    
+    
+    // Demonstrating search function
+    std::cout<<std::endl;
+    std::cout<<"TLR order for nodes 1-15 with inserted 17,111,23,2 and 73 starting from node with data 3"<<std::endl;
+    node *ptr = root->search_public(3,root);
+    printTLROrder(ptr);
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    
+    
+    // Demonstrating destroy function
+    std::cout<<"TLR order for nodes 1-15 with inserted 17,111,23,2,73 and destroyed 5"<<std::endl;
+    root->destroy_public(root->left->right);
+    printTLROrder(root);
+    std::cout<<std::endl;
+
+}
