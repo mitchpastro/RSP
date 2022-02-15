@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-// Node class contains data and pointer to left and right
+// Node class contains a int and pointers to left and right
 class node{
     public:
         int data;
@@ -56,7 +56,7 @@ class node{
 
 
 // Used to destroy all noded decendent from *temp. Use on root to destroy entire tree
-    //Bug:
+    //Issue:
     //    When destroying a node and then printing, the decendents of the destroyed node 
     //    dont show but the but the node itself remains as a 0.
 void node::destroy(node *temp) {
@@ -69,14 +69,14 @@ void node::destroy(node *temp) {
     }
 }
 
-// Used to keep destroy private
+// Keep destroy private
 void node::destroy_public(node *temp) {
     destroy(temp);
 }
 
-// Used to find a empty node and add value d starting from temp.
-// The method used is to simply go left if d < data and to go
-// right if d >= data, not paticualy nuance but it works
+// Find a empty node and add value d starting from temp.
+// The method used is go left if d < data and to go
+// right if d >= data.
 void node::insert(int d, node *temp) {
     
     // Left
@@ -106,13 +106,14 @@ void node::insert(int d, node *temp) {
     }
 }
 
-// Used to keep insert private
+// Keep insert private
 void node::insert_public(int d, node *temp) {
     insert(d,temp);
 }
 
-// Searches value d in given node and all nodes below it. Returns
-// pointer to that node. Use on root to search the whole tree
+// Searches value d in given node and all nodes below it. 
+// Returns pointer to node with given value if it exists, returns NULL otherwise.
+// Use on root to search the whole tree.
 node *node::search(int d, node *temp) {
     if(temp != NULL) {
         if(d == temp->data) {
@@ -126,7 +127,7 @@ node *node::search(int d, node *temp) {
     else return NULL;
 }
 
-// Used to keep search private
+// Keep search private
 node *node::search_public(int d, node *temp) {
     return search(d,temp);
 }
