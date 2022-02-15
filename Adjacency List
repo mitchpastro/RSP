@@ -1,0 +1,145 @@
+// A alternied adjacency list, based on the one showend in ADM
+
+#include <iostream>
+#define MAXV 1000
+
+// Create edgenode (directed edge)
+class edgenode {
+    public:
+    // adjacency info
+    int y;
+    // edge weight, if any
+    int weight;
+    // next edge in list
+    edgenode *next;
+};
+
+// Create the whole graph with n number of vertices/nodes and n number of edges
+class graph {
+    public:
+    // adjacency info
+    edgenode *edges[MAXV+1];
+    // outdegree of each vertex
+    int degree[MAXV+1];
+    // number of vertices in graph
+    int nvertices;
+    // number of edges in graph
+    int nedges;
+    // is graph directed?
+    bool directed;
+};
+
+
+
+// Initialize a graph with no vertices or edges, is not directed
+// and has a 0 in every value of the degree array and NULL in every
+// value of the edges array
+void initialize_graph(graph *g, bool directed) {
+    
+    // counter in for loop
+    int i;
+    
+    // no of vertices and edges = 0, not directed 
+    g->nvertices=0;
+    g->nedges=0;
+    g->directed=0;
+    
+    // every element in degree and edge array = 0
+    for(i=1; i<=MAXV; i++) {
+        g->degree[i] = 0;
+    }
+    for(i=1; i<=MAXV; i++) {
+        g->edges[i] = NULL;
+    }
+}
+
+// creates edges between nodes x and y in graph g
+void insert_edge(graph *g, int x, int y, bool directed) {
+    
+    // temp pointer
+    edgenode *p;
+    
+    p = (edgenode*)malloc(sizeof(edgenode));
+    
+    // Fills p with info
+    p->weight = NULL;
+    p->y = y;
+    p->next = g->edges[x];
+    
+    g->edges[x] = p;
+    
+        // degree and directed are not used in this program but 
+        // are keeped for future programs that do use them
+    // +1 to degree at x
+    g->degree[x] ++;
+    
+    // if not directed, adds another edge between y and x
+    if (directed == 0) {
+        insert_edge(g,y,x,1);
+    }
+    // ...else just adds one edge counter in g
+    else {
+        g->nedges ++;
+    }
+}
+
+// Read the graph, recomended to use .txt 
+void read_graph(graph *g, bool directed) {
+    
+    // counter in for loop
+    int i;
+    // no of edges in graph
+    int m;
+    // node with edge in graph
+    int x,y;
+    
+    // creates empty graph, then adds no of vertices and edges
+    initialize_graph(g, directed);
+    std::cout<<"no of vertices"<<std::endl;
+    std::cin>>g->nvertices;
+    std::cout<<"no of edges"<<std::endl;
+    std::cin>>m;
+    std::cout<<std::endl;
+    
+    // adds edge between nodes x and y based on no of edges given (m)
+    for (i=1; i<=m; i++) {
+        std::cout<<"first node"<<std::endl;
+        std::cin>>x;
+        std::cout<<"second node"<<std::endl;
+        std::cin>>y;
+        std::cout<<std::endl;
+        insert_edge(g,x,y,directed);
+    }
+}
+
+// Prints out each linked list
+void print_graph(graph *g) {
+    
+    // for loop counter and temp edgenode
+    int i;
+    edgenode *p;
+    
+    // couts in style: node - edge edge edge ...
+    for(i=1; i<=g->nvertices; i++) {
+        std::cout<<i<<" -";
+        p = g->edges[i];
+        while (p != NULL) {
+            std::cout<<" "<<p->y;
+            p = p->next;
+        }
+        std::cout<<std::endl;
+    }
+}
+
+
+int main() {
+    
+    // Create empty graph
+    class graph *mygraph = new graph;
+    
+    // Fill empty graph
+    read_graph(mygraph,0);
+    
+    // Print now not empty graph
+    print_graph(mygraph);
+};
