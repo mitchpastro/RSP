@@ -1,0 +1,168 @@
+#include <iostream>         // cin, cout, endl
+#include <string>           // string
+#include <stdlib.h>         // srand, rand
+#include <time.h>           // time
+#include <vector>           // vector<type>
+#include <numeric>          // accumulate 
+
+// Class for individual models
+class Model {
+    public:
+        // inti vals
+        int M, WS, BS, S, T, W, A, Ld, Sv;
+        std::string name;
+        std::string weapon;
+        
+        // constructors
+        Model();
+        Model(int,int,int,int,int,int,int,int,int);
+        
+        // deconstructor
+        ~Model();
+        
+};
+
+// default constructor
+Model::Model() {
+    M = 0;
+    WS = 0;
+    BS = 0;
+    S = 0;
+    T = 0;
+    W = 0;
+    A = 0;
+    Ld = 0;
+    Sv = 0;
+}
+
+// contructor taking vals
+Model::Model(int a, int b, int c, int d, int e, int f, int g, int h, int i) {
+    M = a;
+    WS = b;
+    BS = c;
+    S = d;
+    T = e;
+    W = f;
+    A = g;
+    Ld = h;
+    Sv = i;
+}
+
+// deconstructor
+Model::~Model() {
+    
+}
+
+// function to roll a dice
+int roll_dice() {
+    int n;
+    srand (time(NULL));
+    n = rand() % 6 + 1;
+    return n;
+}
+
+// toughness vs strength function
+int StrengthVsToughness(int S, int T) {
+    
+    if(S >= 2*T) {
+        return 5;
+    }
+    if(S < 2*T && S > T) {
+        return 4;
+    }
+    if(S == T) {
+        return 3;
+    }
+    if(2*S > T && S < T) {
+        return 2;
+    }
+    return 1;
+}
+
+// returns avarege damage for melee
+float W_attack(Model Model_att, Model Model_def, std::vector<int> *prob) {
+    // no of attacks
+    float result = Model_att.A;
+    prob->at(0) = result;
+
+    // Roll to hit
+    result *= (7 - Model_att.WS);
+    prob->at(1) = result;
+
+    // Roll to wound
+    result *= StrengthVsToughness(Model_att.S, Model_def.T);
+    prob->at(2) = result;
+
+    // Saving throw
+    result *= 7 - Model_def.Sv;
+    prob->at(3) = result;
+
+    // Damage
+    result *= 1;
+    prob->at(4) = result;
+    
+    // result /= 216;
+
+    return result;
+}
+
+int main() {
+    
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+
+    // init vals
+    std::vector<int> prob(5,0);             // {{attacks} {hits} {wounds} {saves} {damage}}
+    int i;
+    int j;
+    int no_of_att;
+    double no_of_hit;
+    float no_of_wou;
+    float no_of_sav;
+    float sum_of_dam;
+    
+    // create models
+    Model Marine(6,3,3,4,4,2,2,7,3);
+    int num_Marine = 5;
+    Model Marine_Srg(6,3,3,4,4,2,3,8,3);
+    Model Necron(5,3,3,4,4,1,1,10,4);
+    
+    // keyboard input
+    std::string keyboard;
+    
+    std::cout<<"War40K simulater"<<std::endl;
+    std::cout<<"Type 'exit' to end the program"<<std::endl;
+    
+    W_attack(Marine,Necron,&prob);
+    
+    for(i=0; i<5; i++) {
+        std::cout<<prob[i]<<" "; 
+    }
+    std::cout<<std::endl;
+    
+    // for(i=0; i<num_Marine; i++) {
+    //     for(j=0; j<Marine.A; j++) {
+    //         prob.push_back(W_attack(Marine,Necron));
+    //     }
+    // }
+    
+    // sum_of_dam = std::accumulate(prob.begin(),prob.end(),0);
+    no_of_att = prob[0];
+    no_of_hit = prob[1] / 6.0;
+    no_of_wou = prob[2] / 36.0;
+    no_of_sav = prob[3] / 216.0;
+    sum_of_dam = no_of_sav * no_of_att;
+    // sum_of_dam /= 216;
+    
+    std::cout<<"no of attacks: "<<no_of_att<<std::endl;
+    std::cout<<"Average no of hits: "<<no_of_hit<<std::endl;
+    std::cout<<"Average no of wounds: "<<no_of_wou<<std::endl;
+    std::cout<<"Average no of wounds after saves: "<<no_of_sav<<std::endl;
+    std::cout<<"Average damg = "<<sum_of_dam<<std::endl;
+    
+    
+    return 0;
+}
