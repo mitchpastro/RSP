@@ -8,11 +8,10 @@
 // Class for individual models
 class Model {
     public:
-        // inti vals
+        // vals
         int M, WS, BS, S, T, W, A, Ld, Sv;
-        std::string name;
-        std::string weapon;
-        
+        std::string name, weapon;
+
         // constructors
         Model();
         Model(int,int,int,int,int,int,int,int,int);
@@ -24,13 +23,13 @@ class Model {
 
 // default constructor
 Model::Model() {
-    M = 0;
+    M  = 0;
     WS = 0;
     BS = 0;
-    S = 0;
-    T = 0;
-    W = 0;
-    A = 0;
+    S  = 0;
+    T  = 0;
+    W  = 0;
+    A  = 0;
     Ld = 0;
     Sv = 0;
 }
@@ -50,6 +49,46 @@ Model::Model(int a, int b, int c, int d, int e, int f, int g, int h, int i) {
 
 // deconstructor
 Model::~Model() {
+    
+}
+
+// Class for weapons
+class Weapon {
+    public:
+        // vals
+        int R, AP, D;
+        char T;
+        std::string name, S;
+        
+        // constructor
+        Weapon();
+        Weapon(int,char,std::string,int,int);
+        
+        // deconstructor
+        ~Weapon();
+        
+};
+
+// default constructor
+Weapon::Weapon() {
+    R = 0;
+    T = 'M';
+    S = "U";
+    AP = 0;
+    D = 0;
+}
+
+// constructor taking vals
+Weapon::Weapon(int a, char b, std::string c, int d, int e) {
+    R = a;
+    T = b;
+    S = c;
+    AP = d;
+    D = e;
+}
+
+// deconstructor
+Weapon::~Weapon() {
     
 }
 
@@ -79,43 +118,94 @@ int StrengthVsToughness(int S, int T) {
     return 1;
 }
 
+// melee strength
+int Strength_Melee(std::string S, Model *Model_att) {
+    
+    if(S == "U") {
+        return Model_att->S;
+    }
+    if(S == "U") {
+        return Model_att->S;
+    }
+    
+    return 1;
+}
+
+
+
+
 // returns avarege damage for melee
-float W_attack(Model Model_att, Model Model_def, std::vector<int> *prob) {
+float W_attack(Model Model_att, Weapon Weapon_att, Model Model_def, std::vector<int> *prob) {
     // no of attacks
     float result = Model_att.A;
-    prob->at(0) = result;
+    prob->push_back (result);
+    
+    // reset result
+    result = 1;
 
     // Roll to hit
-    result *= (7 - Model_att.WS);
-    prob->at(1) = result;
+    if(7 - Model_att.WS>6) {
+        result = 6;
+    }
+    else if(7 - Model_att.WS<1) {
+        result = 1;
+    }
+    else {
+        result *= (7 - Model_att.WS);
+    }
+    prob->push_back (result);
 
     // Roll to wound
-    result *= StrengthVsToughness(Model_att.S, Model_def.T);
-    prob->at(2) = result;
+    int temp = Strength_Melee(Weapon_att.S, &Model_att);
+    result *= StrengthVsToughness(temp, Model_def.T);
+    prob->push_back (result);
 
     // Saving throw
-    result *= 7 - Model_def.Sv;
-    prob->at(3) = result;
+    if(Model_def.Sv - 1 + Weapon_att.AP > 6) {
+        result *= 6;
+    }
+    else if(Model_def.Sv - 1 + Weapon_att.AP < 1) {
+        result *= 1;
+    }
+    else {
+        result *= Model_def.Sv - 1 - Weapon_att.AP;
+    }
+    prob->push_back (result);
 
     // Damage
     result *= 1;
-    prob->at(4) = result;
-    
-    // result /= 216;
+    prob->push_back (result);
 
     return result;
 }
 
+
+
+
+
+
 int main() {
+    // endl to space out console
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+        
+    // create models
+    Model Marine(6,3,3,4,4,2,2,7,3);
+    int Marine_no = 5;
+    Model Necron(5,3,3,4,4,1,1,10,4);
+    int Necron_no = 10;
+    Model Guardsman(6,4,4,3,3,1,1,6,5);
+    int Guardsman_no = 10;
     
-    std::cout<<std::endl;
-    std::cout<<std::endl;
-    std::cout<<std::endl;
-    std::cout<<std::endl;
-    std::cout<<std::endl;
+    // creat weapons
+    Weapon CCW(0,'M',"U",0,1);
+    Weapon Astartes_chainwsord(0,'M',"U",-1,1);
 
     // init vals
-    std::vector<int> prob(5,0);             // {{attacks} {hits} {wounds} {saves} {damage}}
+    std::vector<int> prob;             // {{attacks} {hits} {wounds} {saves} {damage}}
     int i;
     int j;
     int no_of_att;
@@ -123,46 +213,31 @@ int main() {
     float no_of_wou;
     float no_of_sav;
     float sum_of_dam;
-    
-    // create models
-    Model Marine(6,3,3,4,4,2,2,7,3);
-    int num_Marine = 5;
-    Model Marine_Srg(6,3,3,4,4,2,3,8,3);
-    Model Necron(5,3,3,4,4,1,1,10,4);
+    float arr_of_dam[Marine_no];
+
     
     // keyboard input
     std::string keyboard;
     
     std::cout<<"War40K simulater"<<std::endl;
-    std::cout<<"Type 'exit' to end the program"<<std::endl;
-    
-    W_attack(Marine,Necron,&prob);
-    
-    for(i=0; i<5; i++) {
-        std::cout<<prob[i]<<" "; 
-    }
-    std::cout<<std::endl;
-    
-    // for(i=0; i<num_Marine; i++) {
-    //     for(j=0; j<Marine.A; j++) {
-    //         prob.push_back(W_attack(Marine,Necron));
-    //     }
-    // }
-    
-    // sum_of_dam = std::accumulate(prob.begin(),prob.end(),0);
+    std::cout<<"Type 'exit' to end the program"<<std::endl<<std::endl;
+
+    // marine - CCW - Necron.
+    W_attack(Marine,Astartes_chainwsord,Necron,&prob);
+
     no_of_att = prob[0];
     no_of_hit = prob[1] / 6.0;
     no_of_wou = prob[2] / 36.0;
     no_of_sav = prob[3] / 216.0;
-    sum_of_dam = no_of_sav * no_of_att;
-    // sum_of_dam /= 216;
-    
-    std::cout<<"no of attacks: "<<no_of_att<<std::endl;
-    std::cout<<"Average no of hits: "<<no_of_hit<<std::endl;
-    std::cout<<"Average no of wounds: "<<no_of_wou<<std::endl;
-    std::cout<<"Average no of wounds after saves: "<<no_of_sav<<std::endl;
-    std::cout<<"Average damg = "<<sum_of_dam<<std::endl;
-    
+    sum_of_dam = no_of_sav * no_of_att * Marine_no;
+    prob.clear();
+
+    std::cout<<Marine_no<<" Marines against Necrons"<<std::endl;
+    std::cout<<"no of attacks per model: "<<no_of_att<<std::endl;
+    std::cout<<"Average hit rate: "<<no_of_hit<<std::endl;
+    std::cout<<"Average no of wounds per hit: "<<no_of_wou<<std::endl;
+    std::cout<<"Average no of wounds per hit after saves: "<<no_of_sav<<std::endl;
+    std::cout<<"Average damg = "<<sum_of_dam<<std::endl<<std::endl;
     
     return 0;
 }
